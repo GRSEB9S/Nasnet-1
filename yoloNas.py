@@ -7,7 +7,7 @@ import keras.backend as K
 import tensorflow as tf
 import sys
 import cv2
-
+import numpy as np
 
 
 def loss_fn(y_true, y_pred):
@@ -79,17 +79,22 @@ def easy_model(input_image):
 
 #model=build_model_conv([5120,5120,3])
 #model.summary()
-
-label_row=[]
-input_data=cv2.imread('image.jpg')
-input_data/=255
-label_txt=open('label.txt','r')
-for i in range(40):
-    label_row.append(label_txt.read())
+def read_data(dir):
+    label_row=[]
+    input_data=cv2.imread(dir+'/1.jpg')
+    input_data=input_data/255
+    label_txt=open(dir+'/1.txt','r')    
+    y_label=label_txt.read()
+    y_label=y_label.replace('\n','')
+    y_label=y_label.split(',')
+    y_label=y_label.remove('')
+    return np.array([input_data]),y_label
 
 
 if __name__ == "__main__":
-    model=build_model_conv([5120,5120,3])
+    dir='AI'
+    input_data,y_label=read_data(dir)
+    model=build_model_flat([5120,5120,3])
     model.summary()
-    model.fit(x=input_data,y=y_label,batch_size=1,epochs=10)(
-    model.predict(x,batch_size=1)
+    #model.fit(x=input_data,y=y_label,batch_size=1,epochs=10)
+    model.predict(input_data)
