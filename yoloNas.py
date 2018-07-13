@@ -68,11 +68,15 @@ def build_model_conv(input_image):
 
 def easy_model(input_image):
     input_tensor=Input(shape=(input_image))
-    conv_1=Conv2D(input_shape=input_image,filters=256,kernel_size=(3,3))(input_tensor)
-    conv_2=Conv2D(filters=256,kernel_size=(3,3))(conv_1)
-    conv_3=Conv2D(filters=256,kernel_size=(3,3))(conv_2) 
+    conv_1=Conv2D(input_shape=input_image,filters=1,kernel_size=(3,3))(input_tensor)
+    mp1=MaxPooling2D(pool_size=(4,4))(conv_1)
+    conv_2=Conv2D(filters=1,kernel_size=(3,3))(mp1)
+    mp2=MaxPooling2D(pool_size=(4,4))(conv_2)
+    conv_3=Conv2D(filters=1,kernel_size=(3,3))(mp2)
+    mp3=MaxPooling2D(pool_size=(4,4))(conv_3)
+
     flat=Flatten()(conv_3)
-    output=Dense(1024)(flat)
+    output=Dense(400)(flat)
     model=Model(inputs=input_tensor,outputs =output)
     model.compile(optimizer='adam',loss=losses.binary_crossentropy)
     return model    
@@ -86,15 +90,15 @@ def read_data(dir):
     label_txt=open(dir+'/1.txt','r')    
     y_label=label_txt.read()
     y_label=y_label.replace('\n','')
-    y_label=y_label.split(',')
-    y_label=y_label.remove('')
-    return np.array([input_data]),y_label
+    y_label=y_label[:-1].split(',')
+    y_label=[int(i) for i in y_label]
+    return np.array([input_data]),np.array([y_label])
 
 
 if __name__ == "__main__":
     dir='AI'
     input_data,y_label=read_data(dir)
-    model=build_model_flat([5120,5120,3])
+    model=easy_model([5120,5120,3])
     model.summary()
-    #model.fit(x=input_data,y=y_label,batch_size=1,epochs=10)
-    model.predict(input_data)
+    model.fit(x=input_data,y=y_label,batch_size=1,epochs=1)
+    model.predict(x=input_data,batch_size=1)
